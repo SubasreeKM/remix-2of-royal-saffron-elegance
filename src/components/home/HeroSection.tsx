@@ -1,18 +1,24 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
-import heroImage from "@/assets/hero-saffron.jpg";
+import heroVideo from "@/assets/hero-video.mp4";
 
 const HeroSection = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${heroImage})` }}
-      >
+      {/* Background Video */}
+      <div className="absolute inset-0">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src={heroVideo} type="video/mp4" />
+        </video>
         {/* Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-royal-purple-dark/80 via-royal-purple/60 to-royal-purple-dark/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-royal-purple-dark/70 via-royal-purple/50 to-royal-purple-dark/85" />
       </div>
 
       {/* Floating Saffron Particles Effect */}
