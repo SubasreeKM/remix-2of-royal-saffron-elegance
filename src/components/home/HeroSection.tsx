@@ -17,8 +17,8 @@ const HeroSection = () => {
         >
           <source src={heroVideo} type="video/mp4" />
         </video>
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-royal-purple-dark/70 via-royal-purple/50 to-royal-purple-dark/85" />
+        {/* Overlay - fades to ivory at bottom */}
+        <div className="absolute inset-0 bg-gradient-to-b from-royal-purple-dark/60 via-royal-purple/40 via-60% to-ivory/95" />
       </div>
 
       {/* Floating Saffron Particles Effect */}
