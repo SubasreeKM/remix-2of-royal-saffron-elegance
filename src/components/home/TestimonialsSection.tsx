@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
-import { Star, ChevronLeft, ChevronRight, Quote, PenLine } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Star, ChevronLeft, ChevronRight, Quote, PenLine, BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { motion, useInView } from "framer-motion";
 import WriteReviewModal from "./WriteReviewModal";
 
 interface Review {
@@ -59,6 +60,13 @@ const TestimonialsSection = () => {
   const [reviews, setReviews] = useState<Review[]>(defaultTestimonials);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [stats, setStats] = useState({ avgRating: 5, totalReviews: 4 });
+  const [isHovered, setIsHovered] = useState(false);
+  
+  const sectionRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const headerInView = useInView(headerRef, { once: true, margin: "-100px" });
+  const cardInView = useInView(cardRef, { once: true, margin: "-100px" });
 
   const fetchReviews = async () => {
     const { data, error } = await supabase
@@ -102,7 +110,10 @@ const TestimonialsSection = () => {
   const currentReview = reviews[currentIndex];
 
   return (
-    <section className="py-24 bg-gradient-to-b from-ivory-dark to-ivory relative overflow-hidden">
+    <section 
+      ref={sectionRef}
+      className="py-24 bg-gradient-to-b from-ivory-dark to-ivory relative overflow-hidden"
+    >
       {/* Subtle background texture */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,_rgba(212,175,55,0.3)_0%,_transparent_50%)]" />
@@ -111,16 +122,37 @@ const TestimonialsSection = () => {
 
       <div className="container mx-auto px-6 relative z-10">
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <p className="font-sans text-gold text-sm tracking-[0.3em] uppercase mb-4">
+        <motion.div 
+          ref={headerRef}
+          className="text-center max-w-2xl mx-auto mb-16"
+          initial={{ opacity: 0, y: 40 }}
+          animate={headerInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1] }}
+        >
+          <motion.p 
+            className="font-sans text-gold text-sm tracking-[0.3em] uppercase mb-4"
+            initial={{ opacity: 0 }}
+            animate={headerInView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
             Customer Stories
-          </p>
-          <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl text-royal-purple mb-6">
+          </motion.p>
+          <motion.h2 
+            className="font-serif text-3xl md:text-4xl lg:text-5xl text-royal-purple mb-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={headerInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          >
             Trusted by Thousands
-          </h2>
+          </motion.h2>
           
           {/* Rating Stats */}
-          <div className="flex items-center justify-center gap-3 mb-6">
+          <motion.div 
+            className="flex items-center justify-center gap-3 mb-6"
+            initial={{ opacity: 0 }}
+            animate={headerInView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
             <div className="flex items-center gap-1">
               {[...Array(5)].map((_, i) => (
                 <Star
@@ -136,65 +168,136 @@ const TestimonialsSection = () => {
             <span className="text-foreground font-medium">{stats.avgRating}</span>
             <span className="text-muted-foreground">•</span>
             <span className="text-muted-foreground">{stats.totalReviews} Reviews</span>
-          </div>
+          </motion.div>
 
-          <div className="w-24 h-px bg-gradient-to-r from-transparent via-gold to-transparent mx-auto" />
-        </div>
+          <motion.div 
+            className="w-24 h-px bg-gradient-to-r from-transparent via-gold to-transparent mx-auto"
+            initial={{ scaleX: 0 }}
+            animate={headerInView ? { scaleX: 1 } : {}}
+            transition={{ duration: 0.8, delay: 0.5 }}
+          />
+        </motion.div>
 
         {/* Testimonial Carousel */}
         <div className="max-w-4xl mx-auto relative">
-          {/* Quote Icon */}
-          <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-10">
-            <Quote className="w-12 h-12 text-gold/30 rotate-180" />
-          </div>
+          {/* Quote Icon with shimmer */}
+          <motion.div 
+            className="absolute -top-6 left-1/2 -translate-x-1/2 z-10"
+            animate={{
+              filter: isHovered 
+                ? "drop-shadow(0 0 12px hsla(43, 76%, 55%, 0.6))" 
+                : "drop-shadow(0 0 6px hsla(43, 76%, 55%, 0.3))",
+            }}
+            transition={{ duration: 0.5 }}
+          >
+            <Quote className="w-12 h-12 text-gold/50 rotate-180" />
+          </motion.div>
 
-          {/* Card */}
-          <div className="bg-card p-10 md:p-14 rounded-sm shadow-elegant border border-gold/20 relative overflow-hidden">
-            {/* Gold glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-gold/5 via-transparent to-transparent pointer-events-none" />
-            
-            {/* Decorative Corners */}
-            <div className="absolute top-0 left-0 w-16 h-16 border-l-2 border-t-2 border-gold/40" />
-            <div className="absolute bottom-0 right-0 w-16 h-16 border-r-2 border-b-2 border-gold/40" />
+          {/* Card with hover effects */}
+          <motion.div 
+            ref={cardRef}
+            className="relative overflow-hidden rounded-sm cursor-pointer"
+            initial={{ opacity: 0, y: 60 }}
+            animate={cardInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 1, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            whileHover={{ 
+              y: -8,
+              transition: { duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }
+            }}
+          >
+            <motion.div
+              className="bg-card p-10 md:p-14 border border-gold/20"
+              animate={{
+                boxShadow: isHovered 
+                  ? "0 25px 50px -12px hsla(270, 50%, 20%, 0.25), 0 0 30px hsla(43, 76%, 55%, 0.1)"
+                  : "0 10px 40px -15px hsla(270, 50%, 20%, 0.15)",
+              }}
+              transition={{ duration: 0.5 }}
+            >
+              {/* Gold glow effect */}
+              <motion.div 
+                className="absolute inset-0 pointer-events-none"
+                animate={{
+                  background: isHovered 
+                    ? "linear-gradient(135deg, hsla(43, 76%, 55%, 0.08) 0%, transparent 50%, hsla(43, 76%, 55%, 0.05) 100%)"
+                    : "linear-gradient(135deg, hsla(43, 76%, 55%, 0.03) 0%, transparent 50%, transparent 100%)",
+                }}
+                transition={{ duration: 0.5 }}
+              />
+              
+              {/* Decorative Corners */}
+              <div className="absolute top-0 left-0 w-16 h-16 border-l-2 border-t-2 border-gold/40" />
+              <div className="absolute bottom-0 right-0 w-16 h-16 border-r-2 border-b-2 border-gold/40" />
 
-            <div className="text-center relative z-10">
-              {/* Stars with glow */}
-              <div className="flex items-center justify-center gap-1 mb-6">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`w-6 h-6 transition-all ${
-                      i < currentReview.rating
-                        ? "fill-gold text-gold drop-shadow-[0_0_8px_rgba(212,175,55,0.6)]"
-                        : "text-muted-foreground/30"
-                    }`}
-                  />
-                ))}
+              <div className="text-center relative z-10">
+                {/* Stars with glow */}
+                <div className="flex items-center justify-center gap-1 mb-6">
+                  {[...Array(5)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, scale: 0.5 }}
+                      animate={cardInView ? { opacity: 1, scale: 1 } : {}}
+                      transition={{ duration: 0.4, delay: 0.3 + i * 0.1 }}
+                    >
+                      <Star
+                        className={`w-6 h-6 transition-all ${
+                          i < currentReview.rating
+                            ? "fill-gold text-gold drop-shadow-[0_0_8px_rgba(212,175,55,0.6)]"
+                            : "text-muted-foreground/30"
+                        }`}
+                      />
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Review Text */}
+                <motion.p 
+                  className="font-serif text-xl md:text-2xl text-foreground leading-relaxed mb-8 italic"
+                  key={currentReview.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6 }}
+                >
+                  "{currentReview.review_text}"
+                </motion.p>
+
+                {/* Author with Verified Badge */}
+                <motion.div
+                  key={`author-${currentReview.id}`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                >
+                  <div className="flex items-center justify-center gap-2 mb-1">
+                    <p className="font-serif text-lg text-royal-purple font-medium">
+                      {currentReview.reviewer_name}
+                    </p>
+                    <div className="flex items-center gap-1 px-2 py-0.5 bg-gold/10 rounded-sm">
+                      <BadgeCheck className="w-4 h-4 text-gold" />
+                      <span className="text-xs text-gold font-medium">Verified Customer</span>
+                    </div>
+                  </div>
+                  <p className="text-muted-foreground text-sm">
+                    {currentReview.location && `${currentReview.location} • `}
+                    {formatDate(currentReview.created_at)}
+                  </p>
+                </motion.div>
               </div>
-
-              {/* Review Text */}
-              <p className="font-serif text-xl md:text-2xl text-foreground leading-relaxed mb-8 italic">
-                "{currentReview.review_text}"
-              </p>
-
-              {/* Author */}
-              <div>
-                <p className="font-serif text-lg text-royal-purple font-medium">
-                  {currentReview.reviewer_name}
-                </p>
-                <p className="text-muted-foreground text-sm">
-                  {currentReview.location && `${currentReview.location} • `}
-                  {formatDate(currentReview.created_at)}
-                </p>
-              </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Navigation */}
-          <div className="flex items-center justify-center gap-4 mt-8">
+          <motion.div 
+            className="flex items-center justify-center gap-4 mt-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={cardInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.5 }}
+          >
             <button
               onClick={prevTestimonial}
-              className="w-12 h-12 rounded-full border-2 border-royal-purple/30 flex items-center justify-center text-royal-purple transition-all hover:border-gold hover:text-gold hover:bg-gold/5"
+              className="w-12 h-12 rounded-full border-2 border-royal-purple/30 flex items-center justify-center text-royal-purple transition-all duration-300 hover:border-gold hover:text-gold hover:bg-gold/5 hover:shadow-[0_0_20px_hsla(43,76%,55%,0.2)]"
               aria-label="Previous testimonial"
             >
               <ChevronLeft className="w-5 h-5" />
@@ -218,15 +321,20 @@ const TestimonialsSection = () => {
 
             <button
               onClick={nextTestimonial}
-              className="w-12 h-12 rounded-full border-2 border-royal-purple/30 flex items-center justify-center text-royal-purple transition-all hover:border-gold hover:text-gold hover:bg-gold/5"
+              className="w-12 h-12 rounded-full border-2 border-royal-purple/30 flex items-center justify-center text-royal-purple transition-all duration-300 hover:border-gold hover:text-gold hover:bg-gold/5 hover:shadow-[0_0_20px_hsla(43,76%,55%,0.2)]"
               aria-label="Next testimonial"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
-          </div>
+          </motion.div>
 
           {/* Write a Review Button */}
-          <div className="text-center mt-10">
+          <motion.div 
+            className="text-center mt-10"
+            initial={{ opacity: 0, y: 20 }}
+            animate={cardInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.6 }}
+          >
             <Button
               onClick={() => setIsModalOpen(true)}
               className="bg-gradient-to-r from-gold to-gold-light text-royal-purple font-semibold px-8 py-6 text-base hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] transition-all duration-300 group"
@@ -234,7 +342,7 @@ const TestimonialsSection = () => {
               <PenLine className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
               Write a Review
             </Button>
-          </div>
+          </motion.div>
         </div>
       </div>
 
