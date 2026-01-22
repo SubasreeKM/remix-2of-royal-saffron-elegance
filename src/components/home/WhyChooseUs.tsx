@@ -38,12 +38,6 @@ const benefits = [
   },
 ];
 
-const comparisonData = [
-  { country: "Kashmir (India)", quality: 98, isOurs: true },
-  { country: "Iran", quality: 75, isOurs: false },
-  { country: "Spain", quality: 68, isOurs: false },
-  { country: "Greece", quality: 62, isOurs: false },
-];
 
 // Floating particles component
 const FloatingParticles = () => {
@@ -171,81 +165,6 @@ const BenefitCard = ({ benefit, index }: { benefit: typeof benefits[0]; index: n
   );
 };
 
-// Quality comparison bar component
-const QualityBar = ({ item, index }: { item: typeof comparisonData[0]; index: number }) => {
-  const barRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(barRef, { once: true, margin: "-50px" });
-
-  return (
-    <motion.div
-      ref={barRef}
-      className={`relative py-6 ${item.isOurs ? "z-10" : ""}`}
-      initial={{ opacity: 0, x: -40 }}
-      animate={isInView ? { opacity: 1, x: 0 } : {}}
-      transition={{ duration: 0.8, delay: index * 0.15, ease: [0.25, 0.1, 0.25, 1] }}
-    >
-      {/* Country label */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-3">
-          <span className={`font-sans text-base ${item.isOurs ? "text-ivory font-medium" : "text-ivory/60"}`}>
-            {item.country}
-          </span>
-          {item.isOurs && (
-            <motion.span
-              className="px-3 py-1 bg-gradient-to-r from-gold to-gold-dark text-royal-purple-dark text-xs font-semibold tracking-wide rounded-sm"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={isInView ? { opacity: 1, scale: 1 } : {}}
-              transition={{ duration: 0.5, delay: index * 0.15 + 0.3 }}
-            >
-              Our Saffron
-            </motion.span>
-          )}
-        </div>
-      </div>
-
-      {/* Glowing quality bar */}
-      <div className={`relative h-3 rounded-full overflow-hidden ${item.isOurs ? "shadow-gold-glow" : ""}`}>
-        {/* Background track */}
-        <div className="absolute inset-0 bg-royal-purple-light/30 backdrop-blur-sm" />
-        
-        {/* Animated fill bar */}
-        <motion.div
-          className={`absolute inset-y-0 left-0 rounded-full ${
-            item.isOurs 
-              ? "bg-gradient-to-r from-gold via-gold-light to-gold" 
-              : "bg-royal-purple-light/50"
-          }`}
-          initial={{ width: 0 }}
-          animate={isInView ? { width: `${item.quality}%` } : {}}
-          transition={{ duration: 1.5, delay: index * 0.15 + 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-        />
-
-        {/* Gold glow pulse for our saffron */}
-        {item.isOurs && (
-          <motion.div
-            className="absolute inset-y-0 left-0 rounded-full"
-            style={{ width: `${item.quality}%` }}
-            initial={{ opacity: 0 }}
-            animate={isInView ? { 
-              opacity: [0.3, 0.6, 0.3],
-              boxShadow: [
-                "0 0 20px hsla(43, 76%, 55%, 0.3)",
-                "0 0 40px hsla(43, 76%, 55%, 0.5)",
-                "0 0 20px hsla(43, 76%, 55%, 0.3)",
-              ]
-            } : {}}
-            transition={{ 
-              duration: 3, 
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 1.5
-            }}
-          />
-        )}
-      </div>
-    </motion.div>
-  );
-};
 
 const WhyChooseUs = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -330,59 +249,11 @@ const WhyChooseUs = () => {
         </motion.div>
 
         {/* Cinematic Benefits Grid */}
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8 mb-32">
+        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
           {benefits.map((benefit, index) => (
             <BenefitCard key={benefit.id} benefit={benefit} index={index} />
           ))}
         </div>
-
-        {/* Global Quality Comparison */}
-        <motion.div 
-          className="max-w-4xl mx-auto"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 1 }}
-        >
-          <motion.div 
-            className="text-center mb-12"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
-            <p className="font-sans text-gold/80 text-sm tracking-[0.3em] uppercase mb-4">
-              Global Excellence
-            </p>
-            <h3 className="font-serif text-3xl md:text-4xl text-ivory mb-4">
-              Quality Comparison
-            </h3>
-            <div className="w-24 h-px bg-gradient-to-r from-transparent via-gold/60 to-transparent mx-auto" />
-          </motion.div>
-
-          {/* Quality bars container */}
-          <div 
-            className="relative p-8 lg:p-12 rounded-sm"
-            style={{
-              background: "linear-gradient(135deg, hsla(270, 45%, 20%, 0.5) 0%, hsla(270, 50%, 15%, 0.5) 100%)",
-              backdropFilter: "blur(10px)",
-            }}
-          >
-            {/* Subtle background pattern */}
-            <div 
-              className="absolute inset-0 opacity-10"
-              style={{
-                backgroundImage: "radial-gradient(circle at 50% 50%, hsla(43, 76%, 55%, 0.1) 0%, transparent 50%)",
-              }}
-            />
-            
-            <div className="relative space-y-2">
-              {comparisonData.map((item, index) => (
-                <QualityBar key={item.country} item={item} index={index} />
-              ))}
-            </div>
-          </div>
-        </motion.div>
       </div>
     </section>
   );
