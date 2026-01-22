@@ -38,72 +38,12 @@ const benefits = [
   },
 ];
 
-// Comparison data with multiple metrics
 const comparisonData = [
-  { 
-    country: "Kashmir (India)", 
-    flag: "🇮🇳",
-    isOurs: true,
-    metrics: {
-      quality: 98,
-      purity: 99,
-      aroma: 96,
-      color: 97,
-      weight: 95,
-      price: 85,
-    }
-  },
-  { 
-    country: "Iran", 
-    flag: "🇮🇷",
-    isOurs: false,
-    metrics: {
-      quality: 75,
-      purity: 72,
-      aroma: 78,
-      color: 74,
-      weight: 70,
-      price: 65,
-    }
-  },
-  { 
-    country: "Spain", 
-    flag: "🇪🇸",
-    isOurs: false,
-    metrics: {
-      quality: 68,
-      purity: 65,
-      aroma: 70,
-      color: 72,
-      weight: 62,
-      price: 58,
-    }
-  },
-  { 
-    country: "Greece", 
-    flag: "🇬🇷",
-    isOurs: false,
-    metrics: {
-      quality: 62,
-      purity: 60,
-      aroma: 64,
-      color: 66,
-      weight: 58,
-      price: 52,
-    }
-  },
+  { country: "Kashmir (India)", quality: 98, isOurs: true },
+  { country: "Iran", quality: 75, isOurs: false },
+  { country: "Spain", quality: 68, isOurs: false },
+  { country: "Greece", quality: 62, isOurs: false },
 ];
-
-type MetricKey = keyof typeof comparisonData[0]["metrics"];
-
-const metricLabels: Record<MetricKey, { label: string; unit: string; description: string }> = {
-  quality: { label: "Overall Quality", unit: "%", description: "ISO Grade Assessment" },
-  purity: { label: "Purity Level", unit: "%", description: "Lab-tested authenticity" },
-  aroma: { label: "Aroma Intensity", unit: "pts", description: "Sensory evaluation score" },
-  color: { label: "Color Strength", unit: "pts", description: "Crocin concentration" },
-  weight: { label: "Strand Weight", unit: "mg", description: "Per gram density" },
-  price: { label: "Value Score", unit: "pts", description: "Quality-to-price ratio" },
-};
 
 // Floating particles component
 const FloatingParticles = () => {
@@ -231,193 +171,77 @@ const BenefitCard = ({ benefit, index }: { benefit: typeof benefits[0]; index: n
   );
 };
 
-// Interactive Dashboard Component
-const QualityDashboard = () => {
-  const [selectedMetric, setSelectedMetric] = useState<MetricKey>("quality");
-  const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
-  const dashboardRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(dashboardRef, { once: true, margin: "-100px" });
-
-  const sortedData = [...comparisonData].sort(
-    (a, b) => b.metrics[selectedMetric] - a.metrics[selectedMetric]
-  );
-
-  const maxValue = Math.max(...comparisonData.map(d => d.metrics[selectedMetric]));
+// Quality comparison bar component
+const QualityBar = ({ item, index }: { item: typeof comparisonData[0]; index: number }) => {
+  const barRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(barRef, { once: true, margin: "-50px" });
 
   return (
     <motion.div
-      ref={dashboardRef}
-      className="bg-white rounded-lg shadow-2xl overflow-hidden"
-      initial={{ opacity: 0, y: 40 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+      ref={barRef}
+      className={`relative py-6 ${item.isOurs ? "z-10" : ""}`}
+      initial={{ opacity: 0, x: -40 }}
+      animate={isInView ? { opacity: 1, x: 0 } : {}}
+      transition={{ duration: 0.8, delay: index * 0.15, ease: [0.25, 0.1, 0.25, 1] }}
     >
-      {/* Dashboard Header */}
-      <div className="bg-gradient-to-r from-charcoal to-charcoal-light px-6 py-5 border-b border-charcoal/10">
-        <div className="flex items-center justify-between">
-          <div>
-            <h4 className="font-serif text-xl text-white">Live Quality Metrics</h4>
-            <p className="text-white/60 text-sm mt-1">Real-time comparison dashboard</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-            <span className="text-white/70 text-xs uppercase tracking-wider">Live Data</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Metric Selector Tabs */}
-      <div className="bg-gray-50 px-6 py-4 border-b border-gray-100">
-        <div className="flex flex-wrap gap-2">
-          {(Object.keys(metricLabels) as MetricKey[]).map((metric) => (
-            <motion.button
-              key={metric}
-              onClick={() => setSelectedMetric(metric)}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-300 ${
-                selectedMetric === metric
-                  ? "bg-gradient-to-r from-gold to-gold-dark text-charcoal shadow-md"
-                  : "bg-white text-charcoal/70 hover:bg-gray-100 border border-gray-200"
-              }`}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+      {/* Country label */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-3">
+          <span className={`font-sans text-base ${item.isOurs ? "text-ivory font-medium" : "text-ivory/60"}`}>
+            {item.country}
+          </span>
+          {item.isOurs && (
+            <motion.span
+              className="px-3 py-1 bg-gradient-to-r from-gold to-gold-dark text-royal-purple-dark text-xs font-semibold tracking-wide rounded-sm"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={isInView ? { opacity: 1, scale: 1 } : {}}
+              transition={{ duration: 0.5, delay: index * 0.15 + 0.3 }}
             >
-              {metricLabels[metric].label}
-            </motion.button>
-          ))}
+              Our Saffron
+            </motion.span>
+          )}
         </div>
-        <p className="text-charcoal/50 text-xs mt-3">
-          {metricLabels[selectedMetric].description}
-        </p>
       </div>
 
-      {/* Comparison Results */}
-      <div className="p-6 lg:p-8 bg-white">
-        <div className="space-y-5">
-          {sortedData.map((item, index) => {
-            const value = item.metrics[selectedMetric];
-            const percentage = (value / maxValue) * 100;
-            const isHovered = hoveredCountry === item.country;
+      {/* Glowing quality bar */}
+      <div className={`relative h-3 rounded-full overflow-hidden ${item.isOurs ? "shadow-gold-glow" : ""}`}>
+        {/* Background track */}
+        <div className="absolute inset-0 bg-royal-purple-light/30 backdrop-blur-sm" />
+        
+        {/* Animated fill bar */}
+        <motion.div
+          className={`absolute inset-y-0 left-0 rounded-full ${
+            item.isOurs 
+              ? "bg-gradient-to-r from-gold via-gold-light to-gold" 
+              : "bg-royal-purple-light/50"
+          }`}
+          initial={{ width: 0 }}
+          animate={isInView ? { width: `${item.quality}%` } : {}}
+          transition={{ duration: 1.5, delay: index * 0.15 + 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+        />
 
-            return (
-              <motion.div
-                key={item.country}
-                className={`relative p-4 rounded-lg transition-all duration-300 cursor-pointer ${
-                  item.isOurs 
-                    ? "bg-gradient-to-r from-gold/10 to-gold/5 border-2 border-gold/30" 
-                    : "bg-gray-50 border border-gray-100 hover:border-gray-200"
-                } ${isHovered ? "shadow-lg" : ""}`}
-                initial={{ opacity: 0, x: -30 }}
-                animate={isInView ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                onMouseEnter={() => setHoveredCountry(item.country)}
-                onMouseLeave={() => setHoveredCountry(null)}
-                whileHover={{ y: -2 }}
-              >
-                {/* Rank Badge */}
-                <div className={`absolute -left-3 -top-3 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                  index === 0 
-                    ? "bg-gradient-to-br from-gold to-gold-dark text-charcoal shadow-lg" 
-                    : "bg-gray-200 text-charcoal/60"
-                }`}>
-                  {index + 1}
-                </div>
-
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3 ml-4">
-                    <span className="text-2xl">{item.flag}</span>
-                    <div>
-                      <span className={`font-medium ${item.isOurs ? "text-charcoal" : "text-charcoal/80"}`}>
-                        {item.country}
-                      </span>
-                      {item.isOurs && (
-                        <motion.span
-                          className="ml-2 px-2 py-0.5 bg-gradient-to-r from-gold to-gold-dark text-charcoal text-xs font-semibold rounded"
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 0.5 }}
-                        >
-                          Our Saffron
-                        </motion.span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <motion.span 
-                      className={`text-2xl font-bold ${item.isOurs ? "text-gold-dark" : "text-charcoal/70"}`}
-                      key={`${item.country}-${selectedMetric}`}
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      {value}
-                    </motion.span>
-                    <span className="text-charcoal/40 text-sm ml-1">
-                      {metricLabels[selectedMetric].unit}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Progress Bar */}
-                <div className="h-3 bg-gray-200 rounded-full overflow-hidden ml-4">
-                  <motion.div
-                    className={`h-full rounded-full ${
-                      item.isOurs 
-                        ? "bg-gradient-to-r from-gold via-gold-light to-gold" 
-                        : "bg-gradient-to-r from-gray-400 to-gray-300"
-                    }`}
-                    initial={{ width: 0 }}
-                    animate={isInView ? { width: `${percentage}%` } : {}}
-                    transition={{ 
-                      duration: 1, 
-                      delay: index * 0.1 + 0.3,
-                      ease: [0.25, 0.1, 0.25, 1]
-                    }}
-                    key={`${item.country}-${selectedMetric}-bar`}
-                  />
-                </div>
-
-                {/* Gold glow for our saffron */}
-                {item.isOurs && (
-                  <motion.div
-                    className="absolute inset-0 rounded-lg pointer-events-none"
-                    animate={{
-                      boxShadow: [
-                        "0 0 0 0 hsla(43, 76%, 55%, 0)",
-                        "0 0 20px 2px hsla(43, 76%, 55%, 0.2)",
-                        "0 0 0 0 hsla(43, 76%, 55%, 0)",
-                      ],
-                    }}
-                    transition={{
-                      duration: 2.5,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  />
-                )}
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* Summary Stats */}
-        <motion.div 
-          className="mt-8 pt-6 border-t border-gray-100 grid grid-cols-2 md:grid-cols-4 gap-4"
-          initial={{ opacity: 0 }}
-          animate={isInView ? { opacity: 1 } : {}}
-          transition={{ delay: 0.8 }}
-        >
-          {[
-            { label: "Regions Analyzed", value: "4" },
-            { label: "Quality Tests", value: "12+" },
-            { label: "Lab Certified", value: "ISO 3632" },
-            { label: "Our Rank", value: "#1" },
-          ].map((stat, idx) => (
-            <div key={stat.label} className="text-center p-3 bg-gray-50 rounded-lg">
-              <p className="text-charcoal font-bold text-lg">{stat.value}</p>
-              <p className="text-charcoal/50 text-xs uppercase tracking-wide">{stat.label}</p>
-            </div>
-          ))}
-        </motion.div>
+        {/* Gold glow pulse for our saffron */}
+        {item.isOurs && (
+          <motion.div
+            className="absolute inset-y-0 left-0 rounded-full"
+            style={{ width: `${item.quality}%` }}
+            initial={{ opacity: 0 }}
+            animate={isInView ? { 
+              opacity: [0.3, 0.6, 0.3],
+              boxShadow: [
+                "0 0 20px hsla(43, 76%, 55%, 0.3)",
+                "0 0 40px hsla(43, 76%, 55%, 0.5)",
+                "0 0 20px hsla(43, 76%, 55%, 0.3)",
+              ]
+            } : {}}
+            transition={{ 
+              duration: 3, 
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 1.5
+            }}
+          />
+        )}
       </div>
     </motion.div>
   );
@@ -512,7 +336,7 @@ const WhyChooseUs = () => {
           ))}
         </div>
 
-        {/* Global Quality Comparison - White Theme Dashboard */}
+        {/* Global Quality Comparison */}
         <motion.div 
           className="max-w-4xl mx-auto"
           initial={{ opacity: 0 }}
@@ -536,8 +360,28 @@ const WhyChooseUs = () => {
             <div className="w-24 h-px bg-gradient-to-r from-transparent via-gold/60 to-transparent mx-auto" />
           </motion.div>
 
-          {/* Interactive Dashboard */}
-          <QualityDashboard />
+          {/* Quality bars container */}
+          <div 
+            className="relative p-8 lg:p-12 rounded-sm"
+            style={{
+              background: "linear-gradient(135deg, hsla(270, 45%, 20%, 0.5) 0%, hsla(270, 50%, 15%, 0.5) 100%)",
+              backdropFilter: "blur(10px)",
+            }}
+          >
+            {/* Subtle background pattern */}
+            <div 
+              className="absolute inset-0 opacity-10"
+              style={{
+                backgroundImage: "radial-gradient(circle at 50% 50%, hsla(43, 76%, 55%, 0.1) 0%, transparent 50%)",
+              }}
+            />
+            
+            <div className="relative space-y-2">
+              {comparisonData.map((item, index) => (
+                <QualityBar key={item.country} item={item} index={index} />
+              ))}
+            </div>
+          </div>
         </motion.div>
       </div>
     </section>
