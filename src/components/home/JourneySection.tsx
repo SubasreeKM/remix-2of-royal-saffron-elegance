@@ -50,19 +50,44 @@ const JourneyCard = ({
   const cardRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: cardRef,
-    offset: ["start end", "center center"],
+    offset: ["start end", "end center"],
   });
 
-  const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0, 1, 1]);
-  const y = useTransform(scrollYProgress, [0, 0.5, 1], [100, 0, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.95, 1, 1]);
+  // Card container animations - smooth rise with fade
+  const cardOpacity = useTransform(scrollYProgress, [0, 0.3, 0.6, 1], [0, 1, 1, 0.3]);
+  const cardY = useTransform(scrollYProgress, [0, 0.3, 0.6, 1], [120, 0, 0, -60]);
+  const cardScale = useTransform(scrollYProgress, [0, 0.3, 0.6, 1], [0.92, 1, 1, 0.98]);
+
+  // Image cinematic zoom - starts slightly zoomed, settles to normal
+  const imageScale = useTransform(scrollYProgress, [0, 0.4, 0.7], [1.08, 1.02, 1]);
+  const imageOpacity = useTransform(scrollYProgress, [0, 0.25], [0.6, 1]);
+
+  // Step number fade-in (appears first, very subtle)
+  const stepOpacity = useTransform(scrollYProgress, [0, 0.15, 0.35], [0, 0.08, 0.15]);
+  const stepY = useTransform(scrollYProgress, [0, 0.35], [30, 0]);
+
+  // Gold glow intensity during entry
+  const glowOpacity = useTransform(scrollYProgress, [0.1, 0.3, 0.5], [0, 0.15, 0.05]);
+
+  // Gold divider width expansion
+  const dividerWidth = useTransform(scrollYProgress, [0.2, 0.45], [0, 64]);
+
+  // Text stagger delays
+  const subtitleOpacity = useTransform(scrollYProgress, [0.15, 0.35], [0, 1]);
+  const subtitleY = useTransform(scrollYProgress, [0.15, 0.35], [20, 0]);
+
+  const titleOpacity = useTransform(scrollYProgress, [0.2, 0.4], [0, 1]);
+  const titleY = useTransform(scrollYProgress, [0.2, 0.4], [25, 0]);
+
+  const descOpacity = useTransform(scrollYProgress, [0.28, 0.48], [0, 1]);
+  const descY = useTransform(scrollYProgress, [0.28, 0.48], [20, 0]);
 
   const isEven = index % 2 === 0;
 
   return (
     <motion.div
       ref={cardRef}
-      style={{ opacity, y, scale }}
+      style={{ opacity: cardOpacity, y: cardY, scale: cardScale }}
       className="min-h-[85vh] flex items-center justify-center px-4 md:px-8 lg:px-16"
     >
       <div
@@ -72,7 +97,13 @@ const JourneyCard = ({
           border border-gold/20 shadow-2xl backdrop-blur-sm
         `}
       >
-        {/* Inner glow effect */}
+        {/* Animated gold glow effect during entry */}
+        <motion.div 
+          style={{ opacity: glowOpacity }}
+          className="absolute inset-0 bg-gradient-to-br from-gold/20 via-gold/10 to-transparent pointer-events-none"
+        />
+        
+        {/* Static inner glow */}
         <div className="absolute inset-0 bg-gradient-to-br from-gold/5 via-transparent to-gold/3 pointer-events-none" />
 
         <div
@@ -81,18 +112,23 @@ const JourneyCard = ({
             ${isEven ? "" : "lg:grid-flow-col-dense"}
           `}
         >
-          {/* Image Side */}
+          {/* Image Side with cinematic zoom */}
           <div
             className={`
               relative h-72 lg:h-[500px] overflow-hidden
               ${isEven ? "lg:order-1" : "lg:order-2"}
             `}
           >
-            <img
-              src={step.image}
-              alt={step.title}
-              className="absolute inset-0 w-full h-full object-cover"
-            />
+            <motion.div
+              style={{ scale: imageScale, opacity: imageOpacity }}
+              className="absolute inset-0"
+            >
+              <img
+                src={step.image}
+                alt={step.title}
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            </motion.div>
             {/* Image overlay for depth */}
             <div
               className={`
@@ -114,30 +150,45 @@ const JourneyCard = ({
               ${isEven ? "lg:order-2" : "lg:order-1"}
             `}
           >
-            {/* Large Step Number */}
-            <span className="font-serif text-8xl md:text-9xl lg:text-[12rem] font-bold text-gold/15 absolute top-4 right-8 lg:top-8 lg:right-12 select-none pointer-events-none leading-none">
+            {/* Large Step Number - fades in first as background layer */}
+            <motion.span 
+              style={{ opacity: stepOpacity, y: stepY }}
+              className="font-serif text-8xl md:text-9xl lg:text-[12rem] font-bold text-gold absolute top-4 right-8 lg:top-8 lg:right-12 select-none pointer-events-none leading-none"
+            >
               {step.step}
-            </span>
+            </motion.span>
 
-            {/* Content */}
+            {/* Content with staggered animations */}
             <div className="relative z-10">
-              {/* Subtitle */}
-              <p className="font-sans text-gold text-xs md:text-sm tracking-[0.35em] uppercase mb-3 md:mb-4">
+              {/* Subtitle - appears after step number */}
+              <motion.p 
+                style={{ opacity: subtitleOpacity, y: subtitleY }}
+                className="font-sans text-gold text-xs md:text-sm tracking-[0.35em] uppercase mb-3 md:mb-4"
+              >
                 {step.subtitle}
-              </p>
+              </motion.p>
 
-              {/* Title */}
-              <h3 className="font-serif text-3xl md:text-4xl lg:text-5xl text-ivory mb-4 md:mb-6 tracking-tight">
+              {/* Title - slides in after subtitle */}
+              <motion.h3 
+                style={{ opacity: titleOpacity, y: titleY }}
+                className="font-serif text-3xl md:text-4xl lg:text-5xl text-ivory mb-4 md:mb-6 tracking-tight"
+              >
                 {step.title}
-              </h3>
+              </motion.h3>
 
-              {/* Gold divider */}
-              <div className="w-16 h-px bg-gradient-to-r from-gold via-gold/60 to-transparent mb-6 md:mb-8" />
+              {/* Gold divider - expands width during animation */}
+              <motion.div 
+                style={{ width: dividerWidth }}
+                className="h-px bg-gradient-to-r from-gold via-gold/60 to-transparent mb-6 md:mb-8"
+              />
 
-              {/* Description */}
-              <p className="font-sans text-ivory/75 text-base md:text-lg leading-relaxed max-w-md">
+              {/* Description - appears last with gentle delay */}
+              <motion.p 
+                style={{ opacity: descOpacity, y: descY }}
+                className="font-sans text-ivory/75 text-base md:text-lg leading-relaxed max-w-md"
+              >
                 {step.description}
-              </p>
+              </motion.p>
             </div>
           </div>
         </div>
