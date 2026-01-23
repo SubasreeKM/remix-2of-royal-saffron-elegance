@@ -1,250 +1,307 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import harvestImage from "@/assets/saffron-harvest.jpg";
-import fieldsImage from "@/assets/kashmir-fields.jpg";
-import jarImage from "@/assets/product-saffron-jar.jpg";
-import giftBoxImage from "@/assets/product-gift-box.jpg";
 
-const journeySteps = [
+// Journey stage images
+import cultivationImage from "@/assets/journey-cultivation.jpg";
+import pickingImage from "@/assets/journey-picking.jpg";
+import extractionImage from "@/assets/journey-extraction.jpg";
+import dryingImage from "@/assets/journey-drying.jpg";
+import packagingImage from "@/assets/journey-packaging.jpg";
+
+interface JourneyStage {
+  id: string;
+  title: string;
+  poeticLine: string;
+  image: string;
+}
+
+const journeyStages: JourneyStage[] = [
   {
-    step: "01",
+    id: "cultivation",
     title: "Cultivation",
-    subtitle: "The Sacred Fields",
-    description:
-      "In the pristine valleys of Kashmir, at an altitude of 1,600 meters, Crocus sativus flowers are cultivated with ancestral wisdom passed down through generations. The unique microclimate and mineral-rich soil create conditions found nowhere else on earth.",
-    image: fieldsImage,
+    poeticLine: "Where mist meets mountain, life begins.",
+    image: cultivationImage,
   },
   {
-    step: "02",
+    id: "picking",
     title: "Hand Picking",
-    subtitle: "Dawn's Delicate Harvest",
-    description:
-      "Each autumn morning, before the first rays of sunlight touch the petals, skilled harvesters delicately pluck each flower by hand. This sacred ritual must be completed within hours, as the blooms are at their peak for mere moments.",
-    image: harvestImage,
+    poeticLine: "Each bloom, a moment. Each touch, a prayer.",
+    image: pickingImage,
   },
   {
-    step: "03",
+    id: "extraction",
     title: "Extraction",
-    subtitle: "The Art of Separation",
-    description:
-      "Master artisans carefully extract the three precious stigmas from each flower—a process requiring immense patience and precision. It takes over 150,000 flowers to produce a single kilogram of this crimson treasure.",
-    image: jarImage,
+    poeticLine: "Three crimson threads. One golden promise.",
+    image: extractionImage,
   },
   {
-    step: "04",
+    id: "drying",
+    title: "Drying & Grading",
+    poeticLine: "Patience transforms nature into treasure.",
+    image: dryingImage,
+  },
+  {
+    id: "packaging",
     title: "Royal Packaging",
-    subtitle: "Preserved Perfection",
-    description:
-      "The finest threads are gently dried using traditional methods, then graded by our experts for color, aroma, and crocin content. Each batch is sealed in airtight vessels to preserve its extraordinary potency and fragrance.",
-    image: giftBoxImage,
+    poeticLine: "Sealed with craft. Delivered with pride.",
+    image: packagingImage,
   },
 ];
 
-const JourneyCard = ({
-  step,
+const STAGE_HEIGHT = 100; // vh per stage for scroll calculation
+
+const JourneyStage = ({
+  stage,
   index,
+  totalStages,
+  scrollYProgress,
 }: {
-  step: (typeof journeySteps)[0];
+  stage: JourneyStage;
   index: number;
+  totalStages: number;
+  scrollYProgress: ReturnType<typeof useScroll>["scrollYProgress"];
 }) => {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: cardRef,
-    offset: ["start end", "end center"],
-  });
+  // Calculate the scroll range for this stage
+  const stageStart = index / totalStages;
+  const stageEnd = (index + 1) / totalStages;
+  const stageMid = (stageStart + stageEnd) / 2;
 
-  // Card container animations - smooth rise with fade
-  const cardOpacity = useTransform(scrollYProgress, [0, 0.3, 0.6, 1], [0, 1, 1, 0.3]);
-  const cardY = useTransform(scrollYProgress, [0, 0.3, 0.6, 1], [120, 0, 0, -60]);
-  const cardScale = useTransform(scrollYProgress, [0, 0.3, 0.6, 1], [0.92, 1, 1, 0.98]);
+  // Image visibility and zoom
+  const imageOpacity = useTransform(
+    scrollYProgress,
+    [
+      stageStart,
+      stageStart + 0.02,
+      stageEnd - 0.02,
+      stageEnd,
+    ],
+    [0, 1, 1, 0]
+  );
 
-  // Image cinematic zoom - starts slightly zoomed, settles to normal
-  const imageScale = useTransform(scrollYProgress, [0, 0.4, 0.7], [1.08, 1.02, 1]);
-  const imageOpacity = useTransform(scrollYProgress, [0, 0.25], [0.6, 1]);
+  // Slow cinematic zoom (starts at 1.15, settles to 1)
+  const imageScale = useTransform(
+    scrollYProgress,
+    [stageStart, stageMid, stageEnd],
+    [1.15, 1.05, 1]
+  );
 
-  // Step number fade-in (appears first, very subtle)
-  const stepOpacity = useTransform(scrollYProgress, [0, 0.15, 0.35], [0, 0.08, 0.15]);
-  const stepY = useTransform(scrollYProgress, [0, 0.35], [30, 0]);
+  // Subtle parallax - image moves slower than scroll
+  const imageY = useTransform(
+    scrollYProgress,
+    [stageStart, stageEnd],
+    ["5%", "-5%"]
+  );
 
-  // Gold glow intensity during entry
-  const glowOpacity = useTransform(scrollYProgress, [0.1, 0.3, 0.5], [0, 0.15, 0.05]);
+  // Text appears after image settles
+  const textOpacity = useTransform(
+    scrollYProgress,
+    [stageStart + 0.04, stageStart + 0.08, stageEnd - 0.06, stageEnd - 0.02],
+    [0, 1, 1, 0]
+  );
 
-  // Gold divider width expansion
-  const dividerWidth = useTransform(scrollYProgress, [0.2, 0.45], [0, 64]);
+  const textY = useTransform(
+    scrollYProgress,
+    [stageStart + 0.04, stageStart + 0.08],
+    [30, 0]
+  );
 
-  // Text stagger delays
-  const subtitleOpacity = useTransform(scrollYProgress, [0.15, 0.35], [0, 1]);
-  const subtitleY = useTransform(scrollYProgress, [0.15, 0.35], [20, 0]);
+  // Gold highlight flash
+  const goldOpacity = useTransform(
+    scrollYProgress,
+    [stageStart + 0.02, stageStart + 0.06, stageStart + 0.12],
+    [0, 0.15, 0]
+  );
 
-  const titleOpacity = useTransform(scrollYProgress, [0.2, 0.4], [0, 1]);
-  const titleY = useTransform(scrollYProgress, [0.2, 0.4], [25, 0]);
-
-  const descOpacity = useTransform(scrollYProgress, [0.28, 0.48], [0, 1]);
-  const descY = useTransform(scrollYProgress, [0.28, 0.48], [20, 0]);
-
-  const isEven = index % 2 === 0;
+  // Stage number reveal
+  const numberOpacity = useTransform(
+    scrollYProgress,
+    [stageStart + 0.03, stageStart + 0.07],
+    [0, 0.08]
+  );
 
   return (
     <motion.div
-      ref={cardRef}
-      style={{ opacity: cardOpacity, y: cardY, scale: cardScale }}
-      className="min-h-[85vh] flex items-center justify-center px-4 md:px-8 lg:px-16"
+      className="absolute inset-0 w-full h-full"
+      style={{ opacity: imageOpacity }}
     >
-      <div
-        className={`
-          relative w-full max-w-6xl rounded-sm overflow-hidden
-          bg-gradient-to-br from-royal-purple/40 via-royal-purple-dark/60 to-royal-purple/30
-          border border-gold/20 shadow-2xl backdrop-blur-sm
-        `}
+      {/* Full-bleed background image with zoom and parallax */}
+      <motion.div
+        className="absolute inset-0 w-full h-full overflow-hidden"
+        style={{ scale: imageScale, y: imageY }}
       >
-        {/* Animated gold glow effect during entry */}
-        <motion.div 
-          style={{ opacity: glowOpacity }}
-          className="absolute inset-0 bg-gradient-to-br from-gold/20 via-gold/10 to-transparent pointer-events-none"
+        <img
+          src={stage.image}
+          alt={stage.title}
+          className="absolute inset-0 w-full h-full object-cover"
         />
-        
-        {/* Static inner glow */}
-        <div className="absolute inset-0 bg-gradient-to-br from-gold/5 via-transparent to-gold/3 pointer-events-none" />
+      </motion.div>
 
-        <div
-          className={`
-            relative grid grid-cols-1 lg:grid-cols-2 gap-0
-            ${isEven ? "" : "lg:grid-flow-col-dense"}
-          `}
-        >
-          {/* Image Side with cinematic zoom */}
-          <div
-            className={`
-              relative h-72 lg:h-[500px] overflow-hidden
-              ${isEven ? "lg:order-1" : "lg:order-2"}
-            `}
-          >
-            <motion.div
-              style={{ scale: imageScale, opacity: imageOpacity }}
-              className="absolute inset-0"
-            >
-              <img
-                src={step.image}
-                alt={step.title}
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-            </motion.div>
-            {/* Image overlay for depth */}
-            <div
-              className={`
-                absolute inset-0 
-                ${isEven 
-                  ? "bg-gradient-to-r from-transparent via-transparent to-royal-purple-dark/80" 
-                  : "bg-gradient-to-l from-transparent via-transparent to-royal-purple-dark/80"
-                }
-              `}
-            />
-            {/* Subtle vignette */}
-            <div className="absolute inset-0 bg-gradient-to-t from-royal-purple-dark/40 via-transparent to-transparent" />
-          </div>
+      {/* Soft vignette overlay */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.4)_100%)]" />
 
-          {/* Content Side */}
-          <div
-            className={`
-              relative p-8 md:p-12 lg:p-16 flex flex-col justify-center
-              ${isEven ? "lg:order-2" : "lg:order-1"}
-            `}
-          >
-            {/* Large Step Number - fades in first as background layer */}
-            <motion.span 
-              style={{ opacity: stepOpacity, y: stepY }}
-              className="font-serif text-8xl md:text-9xl lg:text-[12rem] font-bold text-gold absolute top-4 right-8 lg:top-8 lg:right-12 select-none pointer-events-none leading-none"
-            >
-              {step.step}
-            </motion.span>
+      {/* Gold highlight flash during transition */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-br from-gold/30 via-gold/10 to-transparent pointer-events-none"
+        style={{ opacity: goldOpacity }}
+      />
 
-            {/* Content with staggered animations */}
-            <div className="relative z-10">
-              {/* Subtitle - appears after step number */}
-              <motion.p 
-                style={{ opacity: subtitleOpacity, y: subtitleY }}
-                className="font-sans text-gold text-xs md:text-sm tracking-[0.35em] uppercase mb-3 md:mb-4"
-              >
-                {step.subtitle}
-              </motion.p>
+      {/* Stage number - subtle background element */}
+      <motion.span
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-serif text-[20rem] md:text-[30rem] text-white select-none pointer-events-none leading-none"
+        style={{ opacity: numberOpacity }}
+      >
+        {String(index + 1).padStart(2, "0")}
+      </motion.span>
 
-              {/* Title - slides in after subtitle */}
-              <motion.h3 
-                style={{ opacity: titleOpacity, y: titleY }}
-                className="font-serif text-3xl md:text-4xl lg:text-5xl text-ivory mb-4 md:mb-6 tracking-tight"
-              >
-                {step.title}
-              </motion.h3>
+      {/* Text content - appears after image settles */}
+      <motion.div
+        className="absolute inset-0 flex flex-col items-center justify-end pb-24 md:pb-32 px-6 text-center"
+        style={{ opacity: textOpacity, y: textY }}
+      >
+        {/* Stage title */}
+        <h3 className="font-serif text-3xl md:text-5xl lg:text-6xl text-white mb-4 tracking-wide">
+          {stage.title}
+        </h3>
 
-              {/* Gold divider - expands width during animation */}
-              <motion.div 
-                style={{ width: dividerWidth }}
-                className="h-px bg-gradient-to-r from-gold via-gold/60 to-transparent mb-6 md:mb-8"
-              />
+        {/* Gold divider */}
+        <div className="w-16 md:w-24 h-px bg-gradient-to-r from-transparent via-gold to-transparent mb-6" />
 
-              {/* Description - appears last with gentle delay */}
-              <motion.p 
-                style={{ opacity: descOpacity, y: descY }}
-                className="font-sans text-ivory/75 text-base md:text-lg leading-relaxed max-w-md"
-              >
-                {step.description}
-              </motion.p>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom gold accent line */}
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
-      </div>
+        {/* Poetic line */}
+        <p className="font-serif text-lg md:text-xl lg:text-2xl text-white/90 italic max-w-lg">
+          {stage.poeticLine}
+        </p>
+      </motion.div>
     </motion.div>
   );
 };
 
 const JourneySection = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"],
+  });
+
+  // Progress indicator dots
+  const ProgressIndicator = () => {
+    return (
+      <div className="fixed right-6 md:right-12 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-4">
+        {journeyStages.map((stage, index) => {
+          const stageStart = index / journeyStages.length;
+          const stageEnd = (index + 1) / journeyStages.length;
+          
+          return (
+            <ProgressDot
+              key={stage.id}
+              index={index}
+              stageStart={stageStart}
+              stageEnd={stageEnd}
+              scrollYProgress={scrollYProgress}
+              title={stage.title}
+            />
+          );
+        })}
+      </div>
+    );
+  };
 
   return (
     <section
-      ref={sectionRef}
-      className="relative bg-royal-purple-dark overflow-hidden"
+      ref={containerRef}
+      className="relative"
+      style={{ height: `${journeyStages.length * STAGE_HEIGHT}vh` }}
     >
-      {/* Subtle background gradient layers */}
-      <div className="absolute inset-0 bg-gradient-to-b from-royal-purple-dark via-royal-purple/90 to-royal-purple-dark pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_hsla(270,45%,20%,0.4)_0%,_transparent_70%)] pointer-events-none" />
-
-      {/* Section Header */}
-      <div className="relative pt-24 pb-8 md:pt-32 md:pb-12">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="text-center max-w-2xl mx-auto px-6"
-        >
-          <p className="font-sans text-gold text-sm tracking-[0.35em] uppercase mb-4">
-            From Flower to You
-          </p>
-          <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-ivory mb-6">
-            Journey of Saffron
-          </h2>
-          <div className="w-24 h-px bg-gradient-to-r from-transparent via-gold to-transparent mx-auto mb-8" />
-          <p className="font-sans text-ivory/60 text-base md:text-lg leading-relaxed max-w-xl mx-auto">
-            Witness the meticulous artistry behind the world's most precious spice, 
-            from the misty fields of Kashmir to your table.
-          </p>
-        </motion.div>
-      </div>
-
-      {/* Journey Cards */}
-      <div className="relative pb-24 md:pb-32">
-        {journeySteps.map((step, index) => (
-          <JourneyCard key={step.step} step={step} index={index} />
+      {/* Sticky viewport container */}
+      <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
+        {/* Journey stages */}
+        {journeyStages.map((stage, index) => (
+          <JourneyStage
+            key={stage.id}
+            stage={stage}
+            index={index}
+            totalStages={journeyStages.length}
+            scrollYProgress={scrollYProgress}
+          />
         ))}
-      </div>
 
-      {/* Bottom fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-royal-purple-dark to-transparent pointer-events-none" />
+        {/* Progress indicator */}
+        <ProgressIndicator />
+
+        {/* Scroll hint on first stage */}
+        <ScrollHint scrollYProgress={scrollYProgress} />
+      </div>
     </section>
+  );
+};
+
+// Progress dot component
+const ProgressDot = ({
+  index,
+  stageStart,
+  stageEnd,
+  scrollYProgress,
+  title,
+}: {
+  index: number;
+  stageStart: number;
+  stageEnd: number;
+  scrollYProgress: ReturnType<typeof useScroll>["scrollYProgress"];
+  title: string;
+}) => {
+  const isActive = useTransform(scrollYProgress, (progress) => {
+    return progress >= stageStart && progress < stageEnd;
+  });
+
+  const dotScale = useTransform(scrollYProgress, (progress) => {
+    return progress >= stageStart && progress < stageEnd ? 1.5 : 1;
+  });
+
+  const dotOpacity = useTransform(scrollYProgress, (progress) => {
+    return progress >= stageStart && progress < stageEnd ? 1 : 0.4;
+  });
+
+  return (
+    <motion.div
+      className="relative group flex items-center justify-end"
+      style={{ scale: dotScale }}
+    >
+      <motion.div
+        className="w-2 h-2 rounded-full bg-gold transition-all duration-500"
+        style={{ opacity: dotOpacity }}
+      />
+      {/* Tooltip on hover */}
+      <div className="absolute right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+        <span className="text-sm text-white/80 font-sans tracking-wide">
+          {title}
+        </span>
+      </div>
+    </motion.div>
+  );
+};
+
+// Scroll hint component
+const ScrollHint = ({
+  scrollYProgress,
+}: {
+  scrollYProgress: ReturnType<typeof useScroll>["scrollYProgress"];
+}) => {
+  const opacity = useTransform(scrollYProgress, [0, 0.08], [1, 0]);
+
+  return (
+    <motion.div
+      className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+      style={{ opacity }}
+    >
+      <span className="text-white/60 text-sm font-sans tracking-widest uppercase">
+        Scroll to explore
+      </span>
+      <motion.div
+        animate={{ y: [0, 8, 0] }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        className="w-px h-8 bg-gradient-to-b from-gold/60 to-transparent"
+      />
+    </motion.div>
   );
 };
 
