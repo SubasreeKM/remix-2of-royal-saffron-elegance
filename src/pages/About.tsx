@@ -2,6 +2,7 @@ import Layout from "@/components/layout/Layout";
 import { Award, Target, Users, FileCheck } from "lucide-react";
 import kashmir from "@/assets/kashmir-fields.jpg";
 import harvest from "@/assets/saffron-harvest.jpg";
+import aboutHeroVideo from "@/assets/about-hero-video.mp4";
 
 const corporateDetails = [
   {
@@ -29,17 +30,25 @@ const corporateDetails = [
 const About = () => {
   return (
     <Layout>
-      {/* Hero Section */}
-      <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${kashmir})` }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-b from-royal-purple-dark/90 via-royal-purple/70 to-royal-purple-dark/95" />
+      {/* Hero Section with Video */}
+      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
+        {/* Video Background */}
+        <div className="absolute inset-0">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src={aboutHeroVideo} type="video/mp4" />
+          </video>
+          {/* Elegant Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-royal-purple-dark/60 via-royal-purple/40 to-royal-purple-dark/80" />
         </div>
 
         {/* Kolam Pattern Overlay */}
-        <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0 opacity-10">
           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
             <pattern id="kolam" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
               <circle cx="10" cy="10" r="1" fill="currentColor" className="text-gold" />
