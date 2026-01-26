@@ -1,10 +1,7 @@
-import { motion } from "framer-motion";
 import Layout from "@/components/layout/Layout";
 import { Award, Target, Users, FileCheck } from "lucide-react";
 import kashmir from "@/assets/kashmir-fields.jpg";
 import harvest from "@/assets/saffron-harvest.jpg";
-import aboutHeroVideo from "@/assets/about-hero-video.mp4";
-import logo from "@/assets/logo.png";
 
 const corporateDetails = [
   {
@@ -32,25 +29,17 @@ const corporateDetails = [
 const About = () => {
   return (
     <Layout>
-      {/* Hero Section with Video */}
-      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
-        {/* Video Background */}
-        <div className="absolute inset-0">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover"
-          >
-            <source src={aboutHeroVideo} type="video/mp4" />
-          </video>
-          {/* Elegant Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-b from-royal-purple-dark/60 via-royal-purple/40 to-royal-purple-dark/80" />
+      {/* Hero Section */}
+      <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${kashmir})` }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-b from-royal-purple-dark/90 via-royal-purple/70 to-royal-purple-dark/95" />
         </div>
 
         {/* Kolam Pattern Overlay */}
-        <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0 opacity-5">
           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
             <pattern id="kolam" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
               <circle cx="10" cy="10" r="1" fill="currentColor" className="text-gold" />
@@ -62,93 +51,16 @@ const About = () => {
         </div>
 
         <div className="relative z-10 container mx-auto px-6 text-center">
-          {/* Animated Logo with Golden Shimmer */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.5, ease: "easeOut" }}
-            className="mb-8"
-          >
-            <motion.div
-              className="relative inline-block"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 2, delay: 0.5 }}
-            >
-              <img 
-                src={logo} 
-                alt="Z Princess Saffron" 
-                className="h-24 md:h-32 lg:h-40 w-auto mx-auto drop-shadow-2xl"
-              />
-              {/* Golden Shimmer Effect */}
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-gold/40 to-transparent"
-                initial={{ x: "-100%" }}
-                animate={{ x: "200%" }}
-                transition={{
-                  duration: 2,
-                  delay: 1.5,
-                  ease: "easeInOut",
-                  repeat: Infinity,
-                  repeatDelay: 4
-                }}
-                style={{ 
-                  maskImage: "linear-gradient(to right, transparent, black, transparent)",
-                  WebkitMaskImage: "linear-gradient(to right, transparent, black, transparent)"
-                }}
-              />
-            </motion.div>
-          </motion.div>
-
-          {/* Brand Name with Shimmer */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 1 }}
-            className="relative inline-block mb-6"
-          >
-            <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-ivory">
-              Z Princess Saffron
-            </h1>
-            {/* Text Shimmer */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-gold/30 to-transparent pointer-events-none"
-              initial={{ x: "-100%" }}
-              animate={{ x: "200%" }}
-              transition={{
-                duration: 1.5,
-                delay: 2.5,
-                ease: "easeInOut",
-                repeat: Infinity,
-                repeatDelay: 5
-              }}
-            />
-          </motion.div>
-
-          <motion.div
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 1.2, delay: 1.8, ease: "easeOut" }}
-            className="w-32 h-px bg-gradient-to-r from-transparent via-gold to-transparent mx-auto mb-6 origin-center"
-          />
-          
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 2.2 }}
-            className="font-sans text-gold/90 text-sm tracking-[0.3em] uppercase mb-4"
-          >
+          <p className="font-sans text-gold text-sm tracking-[0.3em] uppercase mb-4 animate-fade-in">
             Our Heritage
-          </motion.p>
-          
-          <motion.p 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 2.6 }}
-            className="text-ivory/80 max-w-2xl mx-auto text-lg leading-relaxed"
-          >
+          </p>
+          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-ivory mb-6 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+            About Z Princess Saffron
+          </h1>
+          <div className="w-24 h-px bg-gradient-to-r from-transparent via-gold to-transparent mx-auto mb-6" />
+          <p className="text-ivory/80 max-w-2xl mx-auto text-lg leading-relaxed animate-fade-in" style={{ animationDelay: "0.4s" }}>
             More than a saffron brand—a legacy of passion, tradition, and excellence
-          </motion.p>
+          </p>
         </div>
       </section>
 
