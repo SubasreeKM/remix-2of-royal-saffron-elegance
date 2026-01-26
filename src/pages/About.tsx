@@ -2,7 +2,9 @@ import Layout from "@/components/layout/Layout";
 import { Award, Target, Users, FileCheck } from "lucide-react";
 import kashmir from "@/assets/kashmir-fields.jpg";
 import harvest from "@/assets/saffron-harvest.jpg";
+import { Suspense, lazy } from "react";
 
+const SaffronBackground3D = lazy(() => import("@/components/about/SaffronBackground3D"));
 const corporateDetails = [
   {
     label: "FSSAI License No",
@@ -31,15 +33,13 @@ const About = () => {
     <Layout>
       {/* Hero Section */}
       <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${kashmir})` }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-b from-royal-purple-dark/90 via-royal-purple/70 to-royal-purple-dark/95" />
-        </div>
+        {/* 3D Background */}
+        <Suspense fallback={null}>
+          <SaffronBackground3D />
+        </Suspense>
 
         {/* Kolam Pattern Overlay */}
-        <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0 opacity-5 z-[1]">
           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
             <pattern id="kolam" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
               <circle cx="10" cy="10" r="1" fill="currentColor" className="text-gold" />
