@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
-import heroVideo from "@/assets/hero-video.mp4";
+import heroVideo from "@/assets/hero-video.mp4.asset.json";
 
 const HeroSection = () => {
   return (
